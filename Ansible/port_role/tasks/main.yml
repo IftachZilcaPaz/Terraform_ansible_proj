@@ -1,0 +1,68 @@
+---
+# tasks file for port_role
+- name: Block for Ubuntu
+  block:
+    - name: Check if port 80 is open
+      wait_for:
+        port: 80
+        state: started
+        delay: 0     
+        timeout: 3
+      register: result
+    
+    - name: Display port check result
+      debug:
+        msg: "Port 80 is open on Ubuntu host"
+      when: result.state == "started"
+
+    - name: Display port check result
+      debug:
+        msg: "Port 80 is not open on Ubuntu host"
+      when: result.state != "started"
+  when: ansible_facts['os_family'] == "Debian"
+
+
+- name: Block for Amazon
+  block:
+    - name: Check if port 80 is open
+      #any_errors_fatal: true
+      wait_for:
+        port: 80
+        state: started
+        delay: 0               # No wait before first check (sec)
+        timeout: 3
+      register: result
+
+    
+    - name: Display port check result
+      debug:
+        msg: "Port 80 is open on Redhat host"
+      when: result.state == "started"
+
+    - name: Display port check result
+      debug:
+        msg: "Port 80 is not open on Redhat host"
+      when: result.state != "started"
+  when: ansible_facts['os_family'] == "RedHat"
+
+
+
+- name: Block for Windows
+  block:
+    - name: Check if port 80 is open on Windows host
+      win_shell: |
+        Test-NetConnection -ComputerName localhost -Port 80 | Select-Object -Property TcpTestSucceeded
+      register: port_check
+      changed_when: false
+
+    - name: Show port check result
+      debug:
+        msg: "Port 80 is open on Windows host."
+      when: port_check.stdout | string | regex_search('True')
+    
+    - name: Show port check result
+      debug:
+        msg: "Port 80 is not open on Windows host."
+      when: port_check.failed == "True"
+  when: ansible_facts['os_family'] == "Windows"
+

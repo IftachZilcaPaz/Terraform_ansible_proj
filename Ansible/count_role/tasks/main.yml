@@ -1,0 +1,19 @@
+---
+# tasks file for count_role
+
+- name: Count hosts in the primary group
+  debug:
+    msg: "Total hosts in -- {{ primary_group }} -- group: {{ groups[hostvars[inventory_hostname]['primary_group']] | length }}"
+  run_once: true
+
+- name: Set message for each host
+  set_fact:
+    host_message: "Total hosts in -- {{ primary_group }} -- group: {{ groups[hostvars[inventory_hostname]['primary_group']] | length }}"
+      
+- name: Append message to a local file from each host
+  lineinfile:
+    path: "count_file.txt"
+    line: "{{ host_message }}"
+    create: yes
+  delegate_to: localhost
+

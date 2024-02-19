@@ -1,0 +1,133 @@
+---
+# tasks file for nginx_role
+
+- name: Block for Debian/Ubuntu
+  block:
+    - name: Update APT package index
+      ansible.builtin.apt:
+        update_cache: yes
+      become: true
+
+    - name: Install Nginx
+      apt:
+        name: nginx
+        state: latest
+      become: true
+    
+    - name: Gather service facts
+      ansible.builtin.service_facts:
+
+    - name: Chmod for configured file in host
+      file:
+        path: "/var/www/html"
+        state: directory
+        #owner: "{{ ansible_user }}"
+        #group: "{{ ansible_user }}"
+        mode: '0333'
+      become: true
+
+    - name: Copy and rename multiple files
+      ansible.builtin.copy:
+        src: "{{ item.src }}"
+        dest: "{{ item.dest }}"
+      loop: "{{ files_to_copy }}"
+      when: files_to_copy is defined
+
+    - name: Start Nginx Service
+      service:
+        name: nginx
+        state: started
+        enabled: true
+      become: true
+      when: "'nginx' not in services or services['nginx'].state != 'running'"
+  when: ansible_facts['os_family'] == "Debian"
+
+####################################
+
+- name: Block for ReHad
+  block:
+    - name: Enable EPEL repository
+      command: amazon-linux-extras install epel -y
+      become: true
+
+    - name: Install Nginx
+      yum:
+        name: nginx
+        state: latest
+      become: true
+    
+    - name: Gather service facts
+      ansible.builtin.service_facts:
+
+    - name: Chmod for configured file in host
+      file:
+        path: "/usr/share/nginx/html"
+        state: directory
+        #owner: "{{ ansible_user }}"
+        #group: "{{ ansible_user }}"
+        mode: '0333'
+      become: true
+
+    - name: Copy and rename multiple files
+      ansible.builtin.copy:
+        src: "{{ item.src }}"
+        dest: "{{ item.dest }}"
+      loop: "{{ files_to_copy_ama }}"
+      when: files_to_copy_ama is defined
+
+    - name: Start Nginx Service
+      service:
+        name: nginx
+        state: started
+        enabled: true
+      become: true
+      when: "'nginx' not in services or services['nginx'].state != 'running'"
+  when: ansible_facts['os_family'] == "RedHat"
+
+
+####################################
+
+- name: Block for win
+  block:
+    - name: Install IIS
+      win_feature:
+        name: Web-Server
+        state: present
+    
+    - name: Ensure IIS is running (optional)
+      ansible.windows.win_service:
+        name: W3SVC
+        state: started
+        start_mode: auto
+
+    - name: Create website directory
+      win_file:
+        path: C:\inetpub\wwwroot\
+        state: directory
+
+    
+    - name: Remove specific file
+      ansible.windows.win_file:
+        path: "C:\\inetpub\\wwwroot\\index.html"
+        state: absent
+
+    - name: Copy files with wildcard
+      ansible.builtin.copy:
+        src: "{{ item }}"
+        dest: C:\\inetpub\\wwwroot\\
+      with_fileglob:
+        - "files/*_win.*"
+
+    - name: Rename index_win.html to index.html1
+      win_shell: Rename-Item -Path "C:\inetpub\wwwroot\index_win.html" -NewName "index.html"
+
+    - name: List files in directory
+      win_shell: |
+        Get-ChildItem -Path "C:\inetpub\wwwroot\*"
+      register: files_list
+
+    - name: Debug files list
+      ansible.builtin.debug:
+        var: files_list.stdout_lines
+  when: ansible_facts['os_family'] == "Windows"
+

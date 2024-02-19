@@ -1,0 +1,102 @@
+- name: Check for htop installation
+  command: which htop
+  register: htop_check
+  ignore_errors: true
+  when: 
+  - ansible_facts['os_family'] == "Debian" 
+
+- name: Set fact for htop installation status
+  set_fact:
+    htop_installed: true
+    register: htop_installed
+  when:
+    - htop_check.rc is defined
+    - htop_check.rc == 0
+    - ansible_facts['os_family'] == "Debian"
+
+- name: Set fact for htop not installed
+  set_fact:
+    htop_installed: false
+    register: htop_installed
+  when:
+    - ansible_facts['os_family'] == "Debian"
+    - (htop_check.rc is not defined) or (htop_check.rc != 0)
+
+- name: Export htop installation status to a file on localhost
+  local_action: shell echo "htop - {{ inventory_hostname }} - {{ htop_installed }}" >> "nginx_role/files/ubuntu_status.txt"
+  delegate_to: localhost
+  run_once: true
+  ignore_errors: true
+  when: ansible_facts['os_family'] == "Debian" 
+
+  ########################################################################
+
+- name: Check for python3 installation
+  command: which python3
+  register: python3_check
+  ignore_errors: true
+  when: 
+  - ansible_facts['os_family'] == "Debian" 
+
+- name: Set fact for python3 installation status
+  set_fact:
+    python3_installed: true
+    register: python3_installed
+  when:
+    - python3_check.rc is defined
+    - python3_check.rc == 0
+    - ansible_facts['os_family'] == "Debian"
+
+- name: Set fact for python3 not installed
+  set_fact:
+    python3_installed: false
+    register: python3_installed
+  when:
+    - ansible_facts['os_family'] == "Debian"
+    - (python3_check.rc is not defined) or (python3_check.rc != 0)
+
+- name: Export htop installation status to a file on localhost
+  local_action: shell echo "python3 - {{ inventory_hostname }} - {{ python3_installed }}" >> "nginx_role/files/ubuntu_status.txt"
+  delegate_to: localhost
+  run_once: true
+  ignore_errors: true
+  when: ansible_facts['os_family'] == "Debian" 
+
+  ###################################################################
+
+- name: Check for tree installation
+  command: which tree
+  register: tree_check
+  ignore_errors: true
+  when: 
+  - ansible_facts['os_family'] == "Debian" 
+
+- name: Set fact for tree installation status
+  set_fact:
+    tree_installed: true
+    register: tree_installed
+  when:
+    - tree_check.rc is defined
+    - tree_check.rc == 0
+    - ansible_facts['os_family'] == "Debian"
+
+- name: Set fact for tree not installed
+  set_fact:
+    tree_installed: false
+    register: tree_installed
+  when:
+    - ansible_facts['os_family'] == "Debian"
+    - (tree_check.rc is not defined) or (tree_check.rc != 0)
+
+- name: Export tree installation status to a file on localhost
+  local_action: shell echo "tree - {{ inventory_hostname }} - {{ tree_installed }}" >> "nginx_role/files/ubuntu_status.txt"
+  delegate_to: localhost
+  run_once: true
+  ignore_errors: true
+  when: ansible_facts['os_family'] == "Debian" 
+
+- name: Copy and rename multiple files
+  ansible.builtin.copy:
+    src: "nginx_role/files/ubuntu_status.txt"
+    dest: "/var/www/html/ubuntu_status.txt"
+  when: ansible_facts['os_family'] == "Debian"

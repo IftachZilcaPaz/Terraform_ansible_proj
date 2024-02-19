@@ -1,0 +1,22 @@
+---
+# tasks file for apps_role RedHat
+
+- name: Found Redhat version
+  debug:
+    msg: "RedHat version is '{{ ansible_facts['os_family'] }} {{ ansible_facts['bios_version'] }}'"
+
+- name: Enable sudo for installation
+  yum:
+    name: sudo
+    state: present
+  become: true
+
+- name: Tools list
+  debug:
+    var: app_packages
+
+- name: Install net tools packages
+  yum: 
+    name: "{{ app_packages }}"
+    state: latest
+  become: true

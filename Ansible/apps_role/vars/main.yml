@@ -1,0 +1,8 @@
+---
+# vars file for apps_role
+
+app_packages:
+  - net-tools
+  - python3
+  - tree
+  - htop

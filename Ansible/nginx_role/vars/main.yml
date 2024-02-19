@@ -1,0 +1,13 @@
+---
+# vars file for nginx_role
+files_to_copy:
+  - { src: 'files/page1_lin.html', dest: "/var/www/html/page1_lin.html" }
+  - { src: 'files/page2_lin.html', dest: "/var/www/html/page2_lin.html" }
+  - { src: 'files/page3_lin.html', dest: "/var/www/html/page3_lin.html" }
+  - { src: 'files/index_lin.html', dest: "/var/www/html/index.html" }
+
+files_to_copy_ama:
+  - { src: 'files/page1_lin.html', dest: "/usr/share/nginx/html/page1_lin.html" }
+  - { src: 'files/page2_lin.html', dest: "/usr/share/nginx/html/page2_lin.html" }
+  - { src: 'files/page3_lin.html', dest: "/usr/share/nginx/html/page3_lin.html" }
+  - { src: 'files/index_ama.html', dest: "/usr/share/nginx/html/index.html" }

@@ -1,0 +1,14 @@
+---
+# tasks file for ping_role
+
+- name: Ping Ubuntu Host
+  ansible.builtin.ping:
+  when: inventory_hostname in groups['lin']
+
+- name: Ping Amazon Host
+  ansible.builtin.ping:
+  when: inventory_hostname in groups['ama']
+
+- name: Ping Windows Host
+  ansible.windows.win_ping:
+  when: inventory_hostname in groups['win']

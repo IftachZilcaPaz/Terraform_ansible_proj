@@ -1,0 +1,31 @@
+---
+# tasks file for apps_role Windows
+
+- name: Found Windows version
+  debug:
+    msg: "Windows version - {{ ansible_facts['distribution'] }}"
+
+
+- name: Install Chocolatey
+  win_shell: Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
+  args:
+    executable: powershell.exe
+
+#- name: Install Python 3.9 using Chocolatey
+#  win_chocolatey:
+#    name: python
+#    state: present
+#    version: '3.9'
+#    force: yes
+#  register: install_python
+
+- name: Install Python 3.9 using Chocolatey
+  win_chocolatey:
+    name: python
+    state: latest  # Or specify a different, available version
+    force: yes
+  register: install_python
+
+- name: Tools list
+  debug:
+    var: install_python

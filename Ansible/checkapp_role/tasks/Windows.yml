@@ -1,0 +1,35 @@
+- name: Check Python 3 version
+  win_command: python --version
+  register: python_version_check
+  ignore_errors: true
+
+- name: Set fact for Python 3 installation status based on command result
+  set_fact:
+    python3_installed: true
+    register: python3_installed
+  when: 
+  - python_version_check.rc == 0
+  - ("Python 3" in python_version_check.stdout)
+  - ansible_facts['os_family'] == "Windows" 
+
+- name: Set fact for Python 3 not installed if the command failed
+  set_fact:
+    python3_installed: false
+    register: python3_installed
+  when: 
+  - (python_version_check.rc != 0) or ("Python 3" not in python_version_check.stdout)
+  - ansible_facts['os_family'] == "Windows" 
+
+
+- name: Export htop installation status to a file on localhost
+  local_action: shell echo "python3 - {{ inventory_hostname }} - {{ python3_installed }}" >> "nginx_role/files/windows_status.txt"
+  delegate_to: localhost
+  run_once: true
+  ignore_errors: true
+  when: ansible_facts['os_family'] == "Windows"
+
+- name: Copy and rename multiple files
+  ansible.builtin.copy:
+    src: "nginx_role/files/windows_status.txt"
+    dest: "C:\\inetpub\\wwwroot\\windows_status.txt"
+  when: ansible_facts['os_family'] == "Windows"
