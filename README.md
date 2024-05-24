@@ -64,6 +64,13 @@ The Terraform configuration will:
     ```bash
     terraform apply
     ```
+</br>
+</br>
+    
+### !!!! in the end of terraform running in the output there will be 3 ip's of each OS, need to put it in the hosts.yml file in ansible before running the playbook. !!!!
+</br>
+</br>
+
 
 ## Ansible Setup
 
